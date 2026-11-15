@@ -4,7 +4,7 @@
 
 | 软件 | 上游项目 | 许可证 | 补丁内容 |
 | --- | --- | --- | --- |
-| [Octet Draw](https://github.com/SamChemMan/Octet-Draw) | v1.1.1 | Apache-2.0 | 1400+ 条词条；原生菜单、工具栏、右键菜单、设置、导出对话框 |
+| [Octet Draw](https://github.com/SamChemMan/Octet-Draw) | v1.1.2 | Apache-2.0 | 1400+ 条词条；原生菜单、工具栏、右键菜单、设置、导出对话框 |
 | [Reactio Draw](https://github.com/Paivel/reactio-draw) | v1.13 | AGPL-3.0 | 1400+ 条词条；工具栏、菜单、设置面板、分析面板 |
 
 > **这不是上游项目，也没有得到原作者授权或背书。** 本仓库**不包含任何编译产物**，
@@ -24,7 +24,7 @@
 
 ```powershell
 cd octet-draw
-powershell -ExecutionPolicy Bypass -File build.ps1 -Tag v1.1.1
+powershell -ExecutionPolicy Bypass -File build.ps1 -Tag v1.1.2
 # 产物: ..\build\Octet-Draw\src-tauri\target\release\octet.exe
 ```
 
@@ -50,7 +50,7 @@ node reactio-draw\apply.mjs D:\path\to\reactio-draw
 1. 生成 `public/zh.js`（词库 + 翻译引擎），并在 `index.html` 里引入；
 2. 替换 `src-tauri/src/*.rs` 里菜单、对话框、提示的字符串字面量；
 3. 把 Tauri 预定义系统菜单项（关闭/剪切/复制/粘贴/最小化…）换成中文；
-4. 把 `src/library.json` 的模板集合名、`src/templates.ts` 的「我的模板」换成中文；
+4. 把 `src/library.json`、`src/library-more.json` 的模板集合名，以及 `src/templates.ts` 的「我的模板」换成中文；
 5. 停用自动更新（`update.rs`），避免中文版被官方英文版覆盖。
 
 **Reactio Draw**（`reactio-draw/apply.mjs`）

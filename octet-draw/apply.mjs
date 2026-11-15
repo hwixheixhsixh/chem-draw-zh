@@ -93,23 +93,42 @@ console.log('[1/7] 已生成 public/zh.js');
   else console.log('[5/7] 自动更新未改动（可能已处理或上游结构变了）');
 }
 
-// ---------- 6) 模板集合名 ----------
+// ---------- 6) 模板集合名（library.json 与 library-more.json）----------
 {
   const map = {
-    'Amino acids': '氨基酸', 'Sugars': '糖', 'Hexoses': '己糖', 'Nucleobases': '核碱基',
-    'Stereocentres': '立体中心', 'Conformers': '构象异构体', 'Cycloalkanes': '环烷烃',
-    'Aromatics': '芳香环', 'Bicyclics': '双环', 'Heterocycles': '杂环',
-    'Functional groups': '官能团', 'Ligands': '配体', 'Cp and arene rings': 'Cp 与芳环',
-    'Metallocenes': '茂金属', 'Paddlewheels': '桨轮配合物', 'Lab': '实验室'
+    'Amino acids': '氨基酸', 'Side chains': '侧链', 'Peptides': '肽',
+    'Sugars': '糖', 'Hexoses': '己糖', 'Nucleobases': '核碱基',
+    'DNA and RNA': 'DNA 与 RNA', 'Stereocentres': '立体中心', 'Conformers': '构象异构体',
+    'Cycloalkanes': '环烷烃', 'Aromatics': '芳香环', 'Bicyclics': '双环',
+    'Heterocycles': '杂环', 'Functional groups': '官能团', 'Ligands': '配体',
+    'Supramolecules': '超分子', 'Polyhedra': '多面体', 'Carbon': '碳材料',
+    'Cp and arene rings': 'Cp 与芳环', 'Metallocenes': '茂金属', 'Paddlewheels': '桨轮配合物',
+    'Photochemistry': '光化学', 'Lab': '实验室', 'Lab equipment': '实验器材',
+    'Biomolecules': '生物分子', 'Cells': '细胞', 'BioArt': '生物艺术',
+    'Anatomy': '解剖', 'Organisms': '生物', 'Bugs': '昆虫', 'Symbols': '符号'
   };
-  let t = read('src/library.json'), n = 0;
-  for (const [en, zh] of Object.entries(map)) {
-    const re = new RegExp('("name"\\s*:\\s*)"' + en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '"(\\s*,\\s*"items")');
-    if (re.test(t)) { t = t.replace(re, '$1"' + zh + '"$2'); n++; }
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // library.json：数组，集合为 {name, items}; 只改集合名（不碰单个模板名）
+  if (fs.existsSync(rel('src/library.json'))) {
+    let t = read('src/library.json'), n = 0;
+    for (const [en, zh] of Object.entries(map)) {
+      const re = new RegExp('("name"\\s*:\\s*)"' + esc(en) + '"(\\s*,\\s*"items")');
+      if (re.test(t)) { t = t.replace(re, '$1"' + zh + '"$2'); n++; }
+    }
+    write('src/library.json', t);
+    console.log(`[6/7] library.json 集合名 ${n} 个`);
   }
-  write('src/library.json', t);
-  changes += n;
-  console.log(`[6/7] 模板集合名 ${n} 个`);
+
+  // library-more.json：{order:[...], sets:[{name, items}]}
+  if (fs.existsSync(rel('src/library-more.json'))) {
+    const j = JSON.parse(read('src/library-more.json'));
+    let n = 0;
+    if (Array.isArray(j.order)) j.order = j.order.map(x => (map[x] ? (n++, map[x]) : x));
+    if (Array.isArray(j.sets)) for (const s of j.sets) if (map[s.name]) { s.name = map[s.name]; n++; }
+    write('src/library-more.json', JSON.stringify(j));
+    console.log(`[6/7] library-more.json 集合名 ${n} 个`);
+  }
 }
 
 // ---------- 7) 用户模板集合常量 ----------
