@@ -81,3 +81,18 @@ LICENSES/       两个上游项目的许可证与第三方声明
 - 本补丁对 Reactio Draw 的修改：遵循上游 **AGPL-3.0**（见 `LICENSES/reactio-draw-AGPL-3.0.txt`）；
 - 上游代码与资源的版权归各自作者所有（Sam Ellis；Pavel Sakharov 及贡献者）；
 - 若你将打过补丁的程序再分发，请遵守对应上游许可证（尤其 AGPL：需同时提供完整源码）。
+
+## 中文场景修复（`cjki/`）
+
+除界面翻译外，本仓库还修了 Octet Draw 在中文使用中的**四个真实缺陷**（详见 [`cjki/README.md`](cjki/README.md)）：
+
+1. 中文宽度按 0.556 em 计（应 1 em）→ CDXML 导出文本偏窄 44%
+2. `wrap()` 只按空格断行 → 中文长句永不换行
+3. `fontStack()` 无中文字体回退 → 中英字形不一致
+4. 输入法合成期按 Enter/Esc 会提交未完成的标签
+
+```powershell
+node cjki/apply-cjk.mjs      <上游目录>
+node cjki/apply-cjk-wrap.mjs <上游目录>
+node cjki/apply-cjk-ime.mjs  <上游目录>
+```
