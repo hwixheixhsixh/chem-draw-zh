@@ -12,6 +12,32 @@
 | 3 | 字体回退链全是西文 | `src/docstyle.ts` `fontStack()` | 汉字由系统随意挑字体，中英字形/字重不一致 |
 | 4 | 输入法合成期未拦截 | `src/RichBox.tsx`、`src/Editor.tsx` | 拼音选字时按 Enter/Esc 会提交未完成的标签 |
 
+## 第五项：中文俗名 → 结构（功能补齐）
+
+上游的名称解析只走 OPSIN，**只认英文系统名**。中文俗名（阿司匹林、布洛芬、冰片、樟脑、咖啡因）一个都读不出来，
+而学生实验报告里写的正是中文名。
+
+本补丁新增 `src/cn-names.ts`（内置离线表，41 条），并接入两条路径：
+
+- `names.ts` 的 `nameToSmiles()`：在 OPSIN 之前查中文表 → 命中即返回 SMILES，**离线可用、零延迟**；
+- `namesStarting()`：输入「阿司」给出「阿司匹林」，输入「苯」给出「苯酚、苯甲酸」。
+
+**实测**（直接跑源码 `nameToSmiles`，未加载 OPSIN）：
+
+```
+✓ 阿司匹林  CC(=O)OC1=CC=CC=C1C(=O)O
+✓ 布洛芬   CC(C)CC1=CC=C(C=C1)C(C)C(=O)O
+✓ 紫杉醇   CC1=C2C(C(=O)C3(...)C)OC(=O)C
+命中 12/12
+建议「阿司」→ ["阿司匹林"]    建议「苯」→ ["苯酚","苯甲酸"]
+```
+
+**数据可靠性**：41 条 SMILES 全部来自 Wikidata 化合物条目（P233），并逐条经 Indigo 解析、
+核对分子式（`src/cn-names.check.ts`）。首版手写时有 6 条错误（吗啡、紫杉醇、阿莫西林、阿托伐他汀、
+士的宁、安乃近），已全部改用 Wikidata 数据修正——**这类表必须校验，错一条就是画错分子**。
+
+扩充方式：往 `cn-names.ts` 加条目，再跑 `cn-names.check.ts` 校验。
+
 ## 实测数据
 
 **修复 1（宽度）**：`size = 10pt`
@@ -49,6 +75,7 @@ if (e.nativeEvent.isComposing || (e.nativeEvent as KeyboardEvent).keyCode === 22
 node apply-cjk.mjs      D:\path\to\Octet-Draw   # 宽度 + 字体
 node apply-cjk-wrap.mjs D:\path\to\Octet-Draw   # 换行
 node apply-cjk-ime.mjs  D:\path\to\Octet-Draw   # 输入法
+node apply-cn-names.mjs D:\path\to\Octet-Draw   # 中文俗名 → 结构
 ```
 
 然后照常 `npm install && npm run tauri build -- --no-bundle`。
